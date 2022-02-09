@@ -102,7 +102,7 @@ app.get('/', async (req, res) => {
       const cached = await checkForCache(url);
 
       if (cached) {
-        sendResponse(res, cached);
+        return sendResponse(res, cached);
       }
 
       const metadata = await getMetadata(url);
@@ -132,8 +132,6 @@ app.get('/', async (req, res) => {
         hostname,
       };
 
-      sendResponse(res, output);
-
       if (!cached && output) {
         await createCache({
           url,
@@ -144,6 +142,9 @@ app.get('/', async (req, res) => {
           hostname: output.hostname,
         });
       }
+
+      return sendResponse(res, output);
+
     }
   } catch (error) {
     return res.set('Access-Control-Allow-Origin', '*').status(500).json(errorResponse(null,500,"Error"));
