@@ -21,7 +21,7 @@ if (process.env.REDISTOGO_URL) {
 const limiter = require('express-limiter')(app, redis);
 
 limiter({
-  path: '/v2',
+  path: '/',
   method: 'get',
   lookup: ['connection.remoteAddress'],
   // 300 requests per minute
@@ -41,12 +41,14 @@ const sendResponse = (res: Response, output: APIOutput | null) => {
 
     return res
       .set('Access-Control-Allow-Origin', '*')
+      .set('Cache-Control', 'public, max-age=2592000')
       .status(200)
       .json(errorResponse(data,404,"Not found"));
   }
 
   return res
     .set('Access-Control-Allow-Origin', '*')
+    .set('Cache-Control', 'public, max-age=2592000')
     .status(200)
     .json(successResponse(output));
 };
@@ -57,17 +59,17 @@ app.listen(port, () => {
 
 app.use(express.static('public'));
 
-app.get('/', async (req, res) => {
+app.get('/v2', async (req, res) => {
   const url = req.query.url as unknown as string;
   const metadata = await getMetadata(url);
   return res
     .set('Access-Control-Allow-Origin', '*')
+    .set('Cache-Control', 'public, max-age=2592000')
     .status(200)
     .json({ metadata });
 });
 
-app.get('/v2', async (req, res) => {
-  res.set('Cache-Control', 'public, max-age=2592000')
+app.get('/', async (req, res) => {
   try {
     let url = req.query.url as unknown as string;
 
