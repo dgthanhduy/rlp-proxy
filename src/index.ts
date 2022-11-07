@@ -20,6 +20,8 @@ if (process.env.REDISTOGO_URL) {
   var redis = require("redis").createClient();
 }
 
+const baseUrl = process.env.BASE_URL ?? "/";
+
 const limiter = require("express-limiter")(app, redis);
 
 limiter({
@@ -61,7 +63,9 @@ app.listen(port, () => {
 
 app.use(express.static("public"));
 
-app.get("/v2", async (req, res) => {
+const router = express.Router();
+
+router.get("/v2", async (req, res) => {
   const url = req.query.url as unknown as string;
   const metadata = await getMetadata(url);
   return res
@@ -71,7 +75,7 @@ app.get("/v2", async (req, res) => {
     .json({ metadata });
 });
 
-app.get("/", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
     let url = req.query.url as unknown as string;
 
@@ -154,3 +158,5 @@ app.get("/", async (req, res) => {
       .json(errorResponse(null, 500, "Error"));
   }
 });
+
+app.use(baseUrl, router);
