@@ -1,9 +1,12 @@
-import { createClient } from '@supabase/supabase-js';
-import { APIOutput } from '../types';
+import { createClient } from "@supabase/supabase-js";
+import { APIOutput } from "../types";
 
-const SUPABASE_URL = 'https://jnrqapvabbmdgeoaslrq.supabase.co';
+const SUPABASE_URL = "https://jnrqapvabbmdgeoaslrq.supabase.co";
 
-const supabase = createClient(SUPABASE_URL, process.env.SUPABASE_KEY!);
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_KEY!
+);
 
 interface CacheRecord extends APIOutput {
   url: string;
@@ -12,9 +15,9 @@ interface CacheRecord extends APIOutput {
 const checkForCache = async (url: string): Promise<APIOutput | null> => {
   try {
     let { data, error } = await supabase
-      .from('meta-cache')
-      .select('*')
-      .eq('url', url);
+      .from("meta-cache")
+      .select("*")
+      .eq("url", url);
 
     if (error) {
       console.log(error);
@@ -34,7 +37,7 @@ const checkForCache = async (url: string): Promise<APIOutput | null> => {
 
 const createCache = async (data: CacheRecord): Promise<boolean> => {
   try {
-    await supabase.from('meta-cache').insert(data);
+    await supabase.from("meta-cache").insert(data);
 
     return true;
   } catch (error) {
